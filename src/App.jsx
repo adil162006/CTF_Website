@@ -1,16 +1,23 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import { Route, Routes } from "react-router-dom";
+import Layout from "./components/Layout";
+import Home from "./pages/Home";
+import ParticipantDashboard from "./pages/ParticipantDashboard";
+
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   return (
-      <div>
-        <h1 className='text-amber-300 text-4xl text-center'>CAPTURE THE FLAG</h1>
-      </div>
-  )
+    <div className="text-yellow-400">
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="dashboard" element={<ParticipantDashboard />} />
+        </Route>
+      </Routes>
+    </div>
+  );
 }
 
-export default App
+export default App;
