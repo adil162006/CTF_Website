@@ -1,22 +1,28 @@
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-
-import { Navigate, Route, Routes } from "react-router";
-import Leaderboard from "./pages/Leaderboard";
-import Logs from "./pages/Logs";
+import { useState } from "react";
+import { Route, Routes } from "react-router-dom";
+import Layout from "./components/Layout";
+import Home from "./pages/Home";
+import ParticipantDashboard from "./pages/ParticipantDashboard";
+import AuthPage from "./pages/AuthPage";
 
 function App() {
+  const [count, setCount] = useState(0);
 
   return (
-    <div>
+    <div className="text-yellow-400">
       <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="auth" element={<AuthPage />} />
+          <Route path="dashboard" element={<ParticipantDashboard />} />
+           {/* <Routes>
         <Route path="/" element={<Leaderboard />} />
         <Route path="/logs" element={<Logs />} />
+      </Routes> */}
+        </Route>
       </Routes>
-
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
