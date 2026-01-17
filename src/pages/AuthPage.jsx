@@ -4,17 +4,37 @@ import { useNavigate } from "react-router-dom";
 
 /* ---------- Icons ---------- */
 
-const FlagIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
-    fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-    <line x1="4" y1="22" x2="4" y2="15" />
+const ShieldCheckIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="32"
+    height="32"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="text-yellow-400"
+  >
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    <path d="m9 12 2 2 4-4" />
   </svg>
 );
 
 const EyeIcon = ({ visible }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-    fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="text-gray-400"
+  >
     {visible ? (
       <>
         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
@@ -26,6 +46,24 @@ const EyeIcon = ({ visible }) => (
         <line x1="1" y1="1" x2="23" y2="23" />
       </>
     )}
+  </svg>
+);
+
+const ArrowRightIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="inline-block ml-1 transition-transform duration-200 group-hover:translate-x-1"
+  >
+    <path d="M5 12h14" />
+    <path d="m12 5 7 7-7 7" />
   </svg>
 );
 
@@ -50,117 +88,262 @@ const AuthPage = () => {
     e.preventDefault();
     setLoading(true);
 
-    if (isLogin) {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password,
-      });
-
-      if (error) {
-        alert(error.message);
-        setLoading(false);
-        return;
-      }
-
-      navigate("/dashboard"); // ✅ redirect
-    } else {
-      const { error } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            team_name: formData.teamName,
+    try {
+      if (isLogin) {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+          options: {
+            data: { team_name: formData.teamName },
           },
-        },
-      });
-
-      if (error) {
-        alert(error.message);
-        setLoading(false);
-        return;
+        });
+        if (error) throw error;
       }
 
-      alert("Signup successful! Please verify email.");
-      navigate("/dashboard"); // ✅ redirect
+      navigate("/dashboard");
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
-    <div className="w-full max-w-md">
-      <div className="relative">
-        <div className="absolute -inset-0.5 bg-yellow-400 rounded-xl blur opacity-20" />
-        <div className="relative bg-zinc-950 border border-yellow-400/30 rounded-xl p-8">
+    <div className="min-h-screen w-full flex items-center justify-center bg-black relative overflow-hidden p-4">
+      {/* Animated background gradient orbs */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-yellow-400/5 rounded-full blur-3xl animate-pulse delay-1000" />
+      </div>
+
+      {/* Grid pattern overlay */}
+      <div
+        className="absolute inset-0 opacity-[0.02]"
+        style={{
+          backgroundImage: `linear-gradient(rgb(250, 204, 21) 1px, transparent 1px),
+                           linear-gradient(90deg, rgb(250, 204, 21) 1px, transparent 1px)`,
+          backgroundSize: "50px 50px",
+        }}
+      />
+
+      <div className="w-full max-w-md relative z-10">
+        <div
+          className="
+            bg-gradient-to-b from-zinc-900/90 to-zinc-950/90
+            backdrop-blur-xl
+            border border-yellow-400/20 rounded-2xl p-8 sm:p-10
+            transition-all duration-500
+            hover:border-yellow-400/40
+            shadow-2xl shadow-yellow-400/5
+            hover:shadow-yellow-400/10
+          "
+        >
+          {/* Header */}
           <div className="flex flex-col items-center mb-8">
-            <div className="bg-zinc-900 border border-yellow-400/40 rounded-lg p-3">
-              <FlagIcon />
+            <div className="relative">
+              {/* Glowing effect behind icon */}
+              <div className="absolute inset-0 bg-yellow-400/20 blur-xl rounded-full animate-pulse" />
+              <div className="relative flex items-center gap-3 bg-zinc-900/50 px-5 py-3 rounded-full border border-yellow-400/30">
+                <ShieldCheckIcon />
+                <span className="text-yellow-400 font-bold text-lg tracking-wider">
+                  IEEE CTF
+                </span>
+              </div>
             </div>
 
-            <h2 className="text-2xl font-semibold text-yellow-400 mt-5">
-              {isLogin ? "Welcome Back" : "Create Account"}
+            <h2 className="text-3xl font-bold text-white mt-8 tracking-tight">
+              {isLogin ? "Welcome Back" : "Join the Challenge"}
             </h2>
+            <p className="text-gray-400 text-sm mt-2 font-medium">
+              {isLogin
+                ? "Sign in to access your dashboard"
+                : "Create your team and start competing"}
+            </p>
           </div>
 
+          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             {!isLogin && (
-              <input
-                name="teamName"
-                placeholder="Team Name"
-                value={formData.teamName}
-                onChange={handleChange}
-                className="w-full bg-zinc-900 border border-zinc-800 px-4 py-3 rounded-lg"
-                required
-              />
+              <div className="animate-fadeIn">
+                <label className="text-sm font-medium text-gray-300 block mb-2">
+                  Team Name
+                </label>
+                <input
+                  name="teamName"
+                  value={formData.teamName}
+                  onChange={handleChange}
+                  placeholder="Enter your team name"
+                  className="
+                    w-full bg-zinc-900/50 px-4 py-3.5 rounded-xl
+                    border border-zinc-700/50 text-gray-100 placeholder-gray-600
+                    hover:border-yellow-400/40
+                    focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20
+                    transition-all duration-200
+                  "
+                  required
+                />
+              </div>
             )}
 
-            <input
-              name="email"
-              type="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full bg-zinc-900 border border-zinc-800 px-4 py-3 rounded-lg"
-              required
-            />
-
-            <div className="relative">
+            <div>
+              <label className="text-sm font-medium text-gray-300 block mb-2">
+                Email Address
+              </label>
               <input
-                name="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="Password"
-                value={formData.password}
+                name="email"
+                type="email"
+                value={formData.email}
                 onChange={handleChange}
-                className="w-full bg-zinc-900 border border-zinc-800 px-4 py-3 rounded-lg pr-12"
+                placeholder="you@example.com"
+                className="
+                  w-full bg-zinc-900/50 px-4 py-3.5 rounded-xl
+                  border border-zinc-700/50 text-gray-100 placeholder-gray-600
+                  hover:border-yellow-400/40
+                  focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20
+                  transition-all duration-200
+                "
                 required
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2"
-              >
-                <EyeIcon visible={showPassword} />
-              </button>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-gray-300 block mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  className="
+                    w-full bg-zinc-900/50 px-4 py-3.5 rounded-xl pr-12
+                    border border-zinc-700/50 text-gray-100 placeholder-gray-600
+                    hover:border-yellow-400/40
+                    focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20
+                    transition-all duration-200
+                  "
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="
+                    absolute right-3 top-1/2 -translate-y-1/2
+                    p-2 rounded-lg
+                    hover:bg-yellow-400/10
+                    transition-colors duration-200
+                  "
+                >
+                  <EyeIcon visible={showPassword} />
+                </button>
+              </div>
             </div>
 
             <button
               disabled={loading}
-              className="w-full bg-yellow-400 py-3 rounded-lg font-semibold"
+              className="
+                w-full bg-gradient-to-r from-yellow-400 to-yellow-500
+                text-black py-3.5 rounded-xl mt-6
+                font-bold text-base
+                transition-all duration-200
+                hover:from-yellow-300 hover:to-yellow-400
+                hover:shadow-lg hover:shadow-yellow-400/25
+                hover:-translate-y-0.5
+                active:translate-y-0
+                disabled:opacity-60 disabled:cursor-not-allowed
+                disabled:hover:translate-y-0
+              "
             >
-              {loading ? "Please wait..." : isLogin ? "Sign In" : "Create Account"}
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  Processing...
+                </span>
+              ) : isLogin ? (
+                "Sign In"
+              ) : (
+                "Create Account"
+              )}
             </button>
           </form>
 
-          <div className="mt-6 text-center">
+          {/* Divider */}
+          <div className="relative my-8">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-zinc-800" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-zinc-900 px-3 text-gray-500 font-medium">
+                or
+              </span>
+            </div>
+          </div>
+
+          {/* Switch */}
+          <div className="text-center">
             <button
               onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-gray-400 hover:text-yellow-400"
+              className="
+                group
+                text-sm text-gray-400
+                hover:text-yellow-400
+                transition-colors duration-200
+                font-medium
+              "
             >
-              {isLogin ? "Don’t have an account? Sign up" : "Already have an account? Sign in"}
+              {isLogin
+                ? "No account? Register your team"
+                : "Already registered? Sign in"}
+              <ArrowRightIcon />
             </button>
           </div>
         </div>
+
+        {/* Footer tagline */}
+        <p className="text-center text-gray-600 text-xs mt-6 font-medium">
+          Secure authentication powered by Supabase
+        </p>
       </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 };
