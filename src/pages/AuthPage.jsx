@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { supabase } from "../supabaseClient";
 
 /* ---------- Icons ---------- */
 
@@ -50,6 +51,7 @@ const EyeIcon = ({ visible }) => (
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     teamName: "",
@@ -60,18 +62,56 @@ const AuthPage = () => {
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const handleSubmit = (e) => {
+  /* ---------- SUPABASE AUTH ---------- */
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(isLogin ? "LOGIN" : "SIGNUP", formData);
+    setLoading(true);
+
+    if (isLogin) {
+      // LOGIN
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (error) {
+        alert(error.message);
+        setLoading(false);
+        return;
+      }
+
+      console.log("Logged in:", data.user);
+      alert("Login successful!");
+    } else {
+      // SIGNUP
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            team_name: formData.teamName,
+          },
+        },
+      });
+
+      if (error) {
+        alert(error.message);
+        setLoading(false);
+        return;
+      }
+
+      console.log("Signed up:", data.user);
+      alert("Signup successful! Please check your email.");
+    }
+
+    setLoading(false);
   };
 
   return (
     <div className="w-full max-w-md">
-      {/* Glow */}
       <div className="relative">
         <div className="absolute -inset-0.5 bg-yellow-400 rounded-xl blur opacity-20"></div>
 
-        {/* Card */}
         <div className="relative bg-zinc-950 border border-yellow-400/30 rounded-xl p-8 shadow-2xl">
           {/* Header */}
           <div className="flex flex-col items-center mb-8">
@@ -92,41 +132,27 @@ const AuthPage = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
-            {isLogin ? (
-              <>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full bg-zinc-900 border border-zinc-800 text-gray-100 px-4 py-3 rounded-lg focus:border-yellow-400/50 focus:ring-2 focus:ring-yellow-400/20 outline-none"
-                  required
-                />
-              </>
-            ) : (
-              <>
-                <input
-                  type="text"
-                  name="teamName"
-                  placeholder="Team Name"
-                  value={formData.teamName}
-                  onChange={handleChange}
-                  className="w-full bg-zinc-900 border border-zinc-800 text-gray-100 px-4 py-3 rounded-lg focus:border-yellow-400/50 focus:ring-2 focus:ring-yellow-400/20 outline-none"
-                  required
-                />
-
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full bg-zinc-900 border border-zinc-800 text-gray-100 px-4 py-3 rounded-lg focus:border-yellow-400/50 focus:ring-2 focus:ring-yellow-400/20 outline-none"
-                  required
-                />
-              </>
+            {!isLogin && (
+              <input
+                type="text"
+                name="teamName"
+                placeholder="Team Name"
+                value={formData.teamName}
+                onChange={handleChange}
+                className="w-full bg-zinc-900 border border-zinc-800 text-gray-100 px-4 py-3 rounded-lg focus:border-yellow-400/50 focus:ring-2 focus:ring-yellow-400/20 outline-none"
+                required
+              />
             )}
+
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full bg-zinc-900 border border-zinc-800 text-gray-100 px-4 py-3 rounded-lg focus:border-yellow-400/50 focus:ring-2 focus:ring-yellow-400/20 outline-none"
+              required
+            />
 
             <div className="relative">
               <input
@@ -149,9 +175,14 @@ const AuthPage = () => {
 
             <button
               type="submit"
-              className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 rounded-lg transition"
+              disabled={loading}
+              className="w-full bg-yellow-400 hover:bg-yellow-500 disabled:opacity-60 text-black font-semibold py-3 rounded-lg transition"
             >
-              {isLogin ? "Sign In" : "Create Account"}
+              {loading
+                ? "Please wait..."
+                : isLogin
+                ? "Sign In"
+                : "Create Account"}
             </button>
           </form>
 
